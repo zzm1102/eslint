@@ -876,16 +876,18 @@ describe("SourceCode", function() {
          * Check comment count
          * @param {int} leading Leading comment count
          * @param {int} trailing Trailing comment count
+         * @param {int} children Children comment count
          * @returns {Function} function to execute
          * @private
          */
-        function assertCommentCount(leading, trailing) {
+        function assertCommentCount(leading, trailing, children) {
             return function(node) {
                 const sourceCode = eslint.getSourceCode();
                 const comments = sourceCode.getComments(node);
 
                 assert.equal(comments.leading.length, leading);
                 assert.equal(comments.trailing.length, trailing);
+                assert.equal(comments.children.length, children);
             };
         }
 
@@ -897,11 +899,11 @@ describe("SourceCode", function() {
             ].join("\n");
 
             eslint.reset();
-            eslint.on("Program", assertCommentCount(0, 0));
-            eslint.on("VariableDeclaration", assertCommentCount(1, 1));
-            eslint.on("VariableDeclarator", assertCommentCount(0, 0));
-            eslint.on("Identifier", assertCommentCount(0, 0));
-            eslint.on("Literal", assertCommentCount(0, 0));
+            eslint.on("Program", assertCommentCount(0, 0, 0));
+            eslint.on("VariableDeclaration", assertCommentCount(1, 1, 0));
+            eslint.on("VariableDeclarator", assertCommentCount(0, 0, 0));
+            eslint.on("Identifier", assertCommentCount(0, 0, 0));
+            eslint.on("Literal", assertCommentCount(0, 0, 0));
 
             eslint.verify(code, config, "", true);
         });
@@ -917,13 +919,14 @@ describe("SourceCode", function() {
             ].join("\n");
 
             eslint.reset();
-            eslint.on("Program", assertCommentCount(0, 0));
-            eslint.on("Identifier", assertCommentCount(0, 0));
-            eslint.on("BlockStatement", assertCommentCount(0, 0));
-            eslint.on("VariableDeclaration", assertCommentCount(0, 0));
-            eslint.on("VariableDeclarator", assertCommentCount(0, 0));
-            eslint.on("ObjectExpression", assertCommentCount(0, 1));
-            eslint.on("ReturnStatement", assertCommentCount(0, 0));
+            eslint.on("Program", assertCommentCount(0, 0, 0));
+            eslint.on("FunctionDeclaration", assertCommentCount(0, 0, 0));
+            eslint.on("Identifier", assertCommentCount(0, 0, 0));
+            eslint.on("BlockStatement", assertCommentCount(0, 0, 0));
+            eslint.on("VariableDeclaration", assertCommentCount(0, 0, 0));
+            eslint.on("VariableDeclarator", assertCommentCount(0, 0, 0));
+            eslint.on("ObjectExpression", assertCommentCount(0, 0, 1));
+            eslint.on("ReturnStatement", assertCommentCount(0, 0, 0));
 
             eslint.verify(code, config, "", true);
         });
@@ -936,11 +939,74 @@ describe("SourceCode", function() {
             ].join("\n");
 
             eslint.reset();
-            eslint.on("Program", assertCommentCount(0, 0));
-            eslint.on("VariableDeclaration", assertCommentCount(1, 1));
-            eslint.on("VariableDeclarator", assertCommentCount(0, 0));
-            eslint.on("Identifier", assertCommentCount(0, 1));
-            eslint.on("Literal", assertCommentCount(1, 0));
+            eslint.on("Program", assertCommentCount(0, 0, 0));
+            eslint.on("VariableDeclaration", assertCommentCount(1, 1, 0));
+            eslint.on("VariableDeclarator", assertCommentCount(0, 0, 0));
+            eslint.on("Identifier", assertCommentCount(0, 1, 0));
+            eslint.on("Literal", assertCommentCount(1, 0, 0));
+
+            eslint.verify(code, config, "", true);
+        });
+
+        it("should attach children comments when program only contains comments", function() {
+            const code = [
+                "// foo",
+                "// bar"
+            ].join("\n");
+
+            eslint.reset();
+            eslint.on("Program", assertCommentCount(0, 0, 2));
+
+            eslint.verify(code, config, "", true);
+        });
+
+        it("should attach children comments when function only contains comments", function() {
+            const code = [
+                "function foo() {",
+                "  // bar",
+                "  // baz",
+                "}"
+            ].join("\n");
+
+            eslint.reset();
+            eslint.on("Program", assertCommentCount(0, 0, 0));
+            eslint.on("FunctionDeclaration", assertCommentCount(0, 0, 0));
+            eslint.on("Identifier", assertCommentCount(0, 0, 0));
+            eslint.on("BlockStatement", assertCommentCount(0, 0, 2));
+
+            eslint.verify(code, config, "", true);
+        });
+
+        it("should attach children comments when object expression only contains comments", function() {
+            const code = [
+                "var foo = {",
+                "  //foo",
+                "  //bar",
+                "};",
+            ].join("\n");
+
+            eslint.reset();
+            eslint.on("VariableDeclaration", assertCommentCount(0, 0, 0));
+            eslint.on("VariableDeclarator", assertCommentCount(0, 0, 0));
+            eslint.on("Identifier", assertCommentCount(0, 0, 0));
+            eslint.on("ObjectExpression", assertCommentCount(0, 0, 2));
+
+            eslint.verify(code, config, "", true);
+        });
+
+        it("should attach children comments when array expression only contains comments", function() {
+            const code = [
+                "var foo = [",
+                "//foo",
+                "//bar",
+                "];"
+            ].join("\n");
+
+            eslint.reset();
+            eslint.on("VariableDeclaration", assertCommentCount(0, 0, 0));
+            eslint.on("VariableDeclarator", assertCommentCount(0, 0, 0));
+            eslint.on("Identifier", assertCommentCount(0, 0, 0));
+            eslint.on("ArrayExpression", assertCommentCount(0, 0, 2));
 
             eslint.verify(code, config, "", true);
         });
