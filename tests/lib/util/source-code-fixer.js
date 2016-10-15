@@ -122,6 +122,19 @@ const INSERT_AT_END = {
         message: "nofix2",
         line: 1,
         column: 7
+    },
+    ADD_PARENS = {
+        message: "add-parens",
+        fix: [
+            {
+                range: [13, 13],
+                text: "("
+            },
+            {
+                range: [18, 18],
+                text: ")"
+            }
+        ]
     };
 
 //------------------------------------------------------------------------------
@@ -303,6 +316,14 @@ describe("SourceCodeFixer", function() {
 
                 assert.equal(result1.output, result2.output);
             });
+
+            it("should not apply fixes from the same problem unless all of them can be applied", function() {
+                const result1 = SourceCodeFixer.applyFixes(sourceCode, [ ADD_PARENS, INSERT_IN_MIDDLE ]);
+
+                assert.equal(result1.output, TEST_CODE.replace("6 * 7;", "5 *6 * 7;"));
+            });
+
+            // TODO: (not-an-aardvark) Add more atomicity tests
         });
 
         describe("No Fixes", function() {
