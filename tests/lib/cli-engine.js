@@ -1385,7 +1385,7 @@ describe("CLIEngine", function() {
                 assert.equal(report.results[0].messages[0].severity, 1);
             });
 
-             // Project configuration - second level package.json
+            // Project configuration - second level package.json
             it("should return zero messages when executing with local package.json that overrides parent package.json", function() {
 
                 engine = new CLIEngine({

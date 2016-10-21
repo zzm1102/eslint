@@ -83,17 +83,21 @@ ruleTester.run("space-before-function-paren", rule, {
             options: [ { named: "always", anonymous: "never" } ],
             parserOptions: { ecmaVersion: 6 }
         },
-        { code: "var foo = function() {}",
-          options: [ { named: "always", anonymous: "ignore" } ]
+        {
+            code: "var foo = function() {}",
+            options: [ { named: "always", anonymous: "ignore" } ]
         },
-        { code: "var foo = function () {}",
-          options: [ { named: "always", anonymous: "ignore" } ]
+        {
+            code: "var foo = function () {}",
+            options: [ { named: "always", anonymous: "ignore" } ]
         },
-        { code: "var bar = function foo() {}",
-          options: [ { named: "ignore", anonymous: "always" } ]
+        {
+            code: "var bar = function foo() {}",
+            options: [ { named: "ignore", anonymous: "always" } ]
         },
-        { code: "var bar = function foo () {}",
-          options: [ { named: "ignore", anonymous: "always" } ]
+        {
+            code: "var bar = function foo () {}",
+            options: [ { named: "ignore", anonymous: "always" } ]
         },
 
         // Async arrow functions

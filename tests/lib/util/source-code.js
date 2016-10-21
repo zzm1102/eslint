@@ -151,7 +151,7 @@ describe("SourceCode", function() {
             const text = fs.readFileSync(
                     UTF8_FILE,
                     "utf8"
-                ).replace(/\r\n/g, "\n"); // <-- For autocrlf of "git for Windows"
+            ).replace(/\r\n/g, "\n"); // <-- For autocrlf of "git for Windows"
             let sourceCode;
 
             beforeEach(function() {
